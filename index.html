@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Обратный отсчёт</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --red: #f00;
+      --white: #fff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    img.logo {
+      max-width: 20%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #111;
+      border: 2px solid var(--red);
+      margin: 20px 0;
+      position: relative;
+      height: 40px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--white),
+        var(--white) 4px,
+        var(--red) 4px,
+        var(--red) 8px
+      );
+      animation: moveStripes 1s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes moveStripes {
+      from { background-position: 0 0; }
+      to { background-position: 8px 0; }
+    }
+
+    .progress-text {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: var(--white);
+      background: transparent;
+    }
+
+    .progress-lines {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .progress-lines div {
+      width: 1px;
+      height: 100%;
+      background-color: var(--white);
+      opacity: 0.2;
+    }
+
+    .achievements {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .achievement {
+      padding: 10px;
+      margin: 5px;
+      border: 2px dashed var(--white);
+      display: inline-block;
+      min-width: 100px;
+      transition: 0.3s;
+    }
+
+    .achievement.reached {
+      border: 2px solid var(--red);
+      color: var(--red);
+      animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.5; }
+    }
+
+    .time-elapsed {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    footer {
+      margin-top: 40px;
+      border-top: 1px solid var(--red);
+      padding-top: 10px;
+      font-size: 0.9em;
+      color: var(--red);
+    }
+
+    @media (max-width: 600px) {
+      .progress-container {
+        height: 35px;
+      }
+
+      .achievement {
+        min-width: 80px;
+        font-size: 0.9em;
+      }
+
+      .time-elapsed {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="logo.png" alt="Логотип" class="logo">
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="progress-text" id="progress-text">0%</div>
+    <div class="progress-lines">
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+    </div>
+  </div>
+
+  <div class="achievements">
+    <div class="achievement" id="a100">100 дней</div>
+    <div class="achievement" id="a200">200 дней</div>
+    <div class="achievement" id="a300">300 дней</div>
+  </div>
+
+  <div class="time-elapsed" id="time-elapsed">
+    Загрузка времени...
+  </div>
+
+  <footer>
+    CREAMPI x ERRCHA
+  </footer>
+
+  <script>
+    const startDate = new Date('2024-11-11T02:00:00Z');
+    const a100 = 100 * 24 * 60 * 60 * 1000;
+    const a200 = 200 * 24 * 60 * 60 * 1000;
+    const a300 = 300 * 24 * 60 * 60 * 1000;
+
+    function updateTime() {
+      const now = new Date();
+      const diff = now - startDate;
+      const totalDays = 365;
+      const totalTime = totalDays * 24 * 60 * 60 * 1000;
+      const percent = Math.min((diff / totalTime) * 100, 100).toFixed(2);
+
+      const progressBar = document.getElementById("progress-bar");
+      const progressText = document.getElementById("progress-text");
+      progressBar.style.width = percent + "%";
+      progressText.textContent = percent + "%";
+
+      if (diff >= a100) document.getElementById("a100").classList.add("reached");
+      if (diff >= a200) document.getElementById("a200").classList.add("reached");
+      if (diff >= a300) document.getElementById("a300").classList.add("reached");
+
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      const weeks = Math.floor(days / 7);
+      const months = Math.floor(days / 30.44);
+
+      const h = hours % 24;
+      const m = minutes % 60;
+      const s = seconds % 60;
+
+      document.getElementById("time-elapsed").textContent =
+        `${months} месяцев, ${weeks} недель, ${days} дней, ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
